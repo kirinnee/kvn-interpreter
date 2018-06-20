@@ -748,12 +748,16 @@ function initCharacter(charList) {
 	addMethodToList(new Method('glitch', [], null, [spriteName], lex, fr,
 		"Glitches the character constantly, the character will constantly glitch until .fix() is called. You may make the glitchs have a different sprite, if not stated, the sprite will always change with the character sprite, else, the glitch will always have the specified sprite. "
 	), charList);
-	addMethodToList(new Method('endSpeak', [], null, [promise, spsTime], lex, fr,
+	addMethodToList(new Method('endSpeak', [], null, [promise, spsTime,swing,skip], lex, fr,
 		"Reverts the character back to normal size after preSpeak is used."
 	), charList);
 	addMethodToList(new Method('preSpeak', [], null, [promise, scaleV, spsTime,swing,skip], lex, fr,
 		"Scales the character and brings the character to front. Commonly used before speaking"
 	), charList);
+	addMethodToList(new Method('interupt', [], null, [promise, scaleV, spsTime,swing,skip], lex, fr,
+		"Prespeaks and interupt the previous character while talking"
+	), charList);
+
 	addMethodToList(new Method('fix', [], null, [], lex, fr,
 		"Fixes the character if its glitching"
 	), charList);
