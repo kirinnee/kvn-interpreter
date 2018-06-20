@@ -1,7 +1,7 @@
 {
-    "name": "Project_Sophie|_KVN",
-    "version": "0.4.2",
-    "description": "Compiler from .kvn to .js",
+    "name": "Project Sophie KVN",
+    "version": "0.0.1",
+    "description": "Compiler from .kvn to .js for KVN version 0.4.4",
     "repository": "none",
     "license": "Copyright Kirinnee97 All Rights Reserverd",
     "author": "kirinnee97 @ https://bigbulb.studio",

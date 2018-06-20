@@ -33,7 +33,7 @@ module.exports = class Method {
       return false;
     }
 
-    parseCode(caller, code, promise, tabulation) {
+    parseCode(caller, code, promise, tabulation, SL) {
         var arrays = this.lexer.parse(code,this.order);
         var code = '  '.repeat(tabulation) + caller + "." + this.realName + "(";
 
@@ -54,7 +54,12 @@ module.exports = class Method {
                         var aKey = arrays[x].key.trim();
                         if (aKey === key) {
                             //if key for this method and key for parsed is the same
-                            var v = arrays[x].value.trim();
+                            try{
+                              var v = arrays[x].value.trim();
+                            }catch(e){
+                              console.log(e.stack);
+                              throw new Error('Error occured at Line '+SL +"; "+e);
+                            }
                             //if is def
                             if (v === 'def') {
                                 val = 'def';
@@ -62,8 +67,8 @@ module.exports = class Method {
                             } else {
                                 //if its string
                                 if (arg.type === "string") {
-                                    v = v.replace('"', '\\"');
-                                    v = v.replace("'", "\\'");
+                                    v = v.replace(/"/g, '\\"');
+                                    v = v.replace(/'/g, "\\'");
                                     v = v.replace(/([^\\]|^)#([^\s]+)(\s|$)/,'$1\' + $2 + \'$3');
                                     v = v.replace(/\\#/,'#');
                                     val = "\'" + v + "\'";

@@ -74,7 +74,7 @@ gulp.task('series', function(done) {
 						resolve();
 					});
 				} catch (e) {
-					console.log("Caught Error: " + e)
+					console.log("Caught Error: " + e.stack)
 					var x = 'displayError(\'' + e + "');";
 					fs.writeFile("./kvn/scripts/" + os, x, function(err) {
 						if (err) {
@@ -497,6 +497,19 @@ function initCharacter(charList) {
 			'character': 'Fully constructed Character Object'
 		}
 	);
+	var name = new Args('name', [], 'string', 'string',
+		'Name of to be displayed as speaking for the character', {
+			'string': 'Any string to be displayed as name. Eg: John Smith, Kami-sama',
+			'none': 'Will not display the name box',
+			'def': 'Will not display the name box',
+			'null/undefined': 'character\'s default name during construction'
+		}
+	);
+
+	addMethodToList(
+		new Method('changeName',[],null,[name],lexer,set,
+			"Changes the display name of the character",
+		),charList);
 	//Chain Constructors
 	addMethodToList(
 		new Method('complete', [], 'complete', [], lex, "Chain Constructor", "Marks the completion of the character during construction. All values set by chain constructors, setters or pre-anim prior to this method call will be set as the character's default values. When calling settings and animations, if the parameter is undefined or null, it will assume to animate to/set to these default values"), charList);
@@ -738,7 +751,7 @@ function initCharacter(charList) {
 	addMethodToList(new Method('endSpeak', [], null, [promise, spsTime], lex, fr,
 		"Reverts the character back to normal size after preSpeak is used."
 	), charList);
-	addMethodToList(new Method('preSpeak', [], null, [promise, scaleV, spsTime], lex, fr,
+	addMethodToList(new Method('preSpeak', [], null, [promise, scaleV, spsTime,swing,skip], lex, fr,
 		"Scales the character and brings the character to front. Commonly used before speaking"
 	), charList);
 	addMethodToList(new Method('fix', [], null, [], lex, fr,
@@ -1400,22 +1413,28 @@ function registerMacro(lines) {
 		var index = lines[i].index;
 		var args = line.split(' ');
 		var cmd = args.shift().trim();
+		//console.log("Arg",cmd, i, lines[i].index);
 		if (cmd === "macro") {
+			//console.log("Is Macro: ", i)
 			lines.splice(i, 1);
 			i--;
 			var marcoCmd = args.shift().trim();
 			var s = numberOfSpaces(line);
 			var l = [];
-			while (numberOfSpaces(lines[++i].code) > s) {
+			i++
+			while (numberOfSpaces(lines[i].code) > s) {
+				//console.log("pushing:",i,lines[i])
 				l.push(lines[i]);
 				lines.splice(i, 1);
-				i--;
 			}
+			i--
 			if (marcoList[marcoCmd] !== null && typeof marcoList[marcoCmd] !== "undefined") {
 				throw new Error("Macro already exist, please change macro name! Line " + index);
 			}
+
 			marcoList[marcoCmd] = new Macro(marcoCmd, args, l);
 		}
+
 	}
 	return [lines, marcoList];
 }

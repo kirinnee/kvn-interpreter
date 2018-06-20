@@ -29,7 +29,32 @@ module.exports = class Parser {
 		}
 		return false;
 	}
+
+
+
 	isCharacter(node) {
+		var keyComma = node.getKey().split(',').filter(d=>d!==null && typeof d1=="undefined" && d.trim() !== "").map(d=>d.trim());
+		var keySlash = node.getKey().split('/').filter(d=>d!==null && typeof d1=="undefined" && d.trim() !== "").map(d=>d.trim());
+		if(keyComma.length>1){
+			var isChar = true;
+			for(var i in keyComma){
+				var fnode = {key:keyComma[i],getKey:function(){return this.key}};
+				if(!this.isCharacter(fnode)){
+					isChar = false;
+				}
+			}
+			return isChar;
+		}
+		if(keySlash.length>1){
+			var isChar = true;
+			for(var i in keySlash){
+				var fnode = {key:keySlash[i],getKey:function(){return this.key}};
+				if(!this.isCharacter(fnode)){
+					isChar = false;
+				}
+			}
+			return isChar;
+		}
 		for (var x in this.objList) {
 			if (x === node.getKey() && this.objList[x].type === "character") {
 				return true;
@@ -38,6 +63,28 @@ module.exports = class Parser {
 		return false;
 	}
 	isBackground(node) {
+		var keyComma = node.getKey().split(',').filter(d=>d!==null && typeof d1=="undefined" && d.trim() !== "").map(d=>d.trim());
+	var keySlash = node.getKey().split('/').filter(d=>d!==null && typeof d1=="undefined" && d.trim() !== "").map(d=>d.trim());
+	if(keyComma.length>1){
+		var isChar = true;
+		for(var i in keyComma){
+			var fnode = {key:keyComma[i],getKey:function(){return this.key}};
+			if(!this.isBackground(fnode)){
+				isChar = false;
+			}
+		}
+		return isChar;
+	}
+	if(keySlash.length>1){
+		var isChar = true;
+		for(var i in keySlash){
+			var fnode = {key:keySlash[i],getKey:function(){return this.key}};
+			if(!this.isBackground(fnode)){
+				isChar = false;
+			}
+		}
+		return isChar;
+	}
 		for (var x in this.objList) {
 			if (x === node.getKey() && this.objList[x].type === "stage") {
 				return true;
