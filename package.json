@@ -1,0 +1,42 @@
+{
+    "name": "Project_Sophie|_KVN",
+    "version": "0.4.2",
+    "description": "Compiler from .kvn to .js",
+    "repository": "none",
+    "license": "Copyright Kirinnee97 All Rights Reserverd",
+    "author": "kirinnee97 @ https://bigbulb.studio",
+    "contributors": [],
+    "dependencies": {},
+    "devDependencies": {
+        "babel-core": "^6.26.3",
+        "babel-preset-env": "^1.7.0",
+        "gulp": "github:gulpjs/gulp#4.0",
+        "gulp-babel": "^7.0.1"
+    },
+    "babel": {
+        "minified": "true",
+        "presets": [
+            [
+                "env",
+                {
+                    "targets": {
+                        "browsers": [
+                            "last 2 versions",
+                            "safari >= 7"
+                        ]
+                    }
+                }
+            ]
+        ]
+    },
+    "cssnano": {
+        "preset": [
+            "default",
+            {
+                "discardComments": {
+                    "removeAll": true
+                }
+            }
+        ]
+    }
+}
