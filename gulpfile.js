@@ -1277,6 +1277,12 @@ function initBackground(bgList) {
 		'Skew background from the current position but does not animate it yet. Values will be applied on next animation.'
 	), bgList);
 	//animations
+	addMethodToList(new Method('fadeInBackground', ['fadeIn','appear'], null, [time,promise,swing,skip], lex, anim,
+		'Fades in the background in the given time. (Change background layer opacity to 1)'
+	), bgList);
+	addMethodToList(new Method('fadeOutBackground', ['fadeOut','disappear'], null, [time,promise,swing,skip], lex, anim,
+		'Fades out the background in the given time. (Change background layer opacity to 0)'
+	), bgList);
 	addMethodToList(new Method('displayText', [], null, [text, texttime, promise, name, centered, fontSize, color, bold, italic, skip], lex, anim,
 		'Displays a text on the text box. It can has various customizable settings for the text and their position. Do note that this will clear whatever text there are in the current textbox (if it is completed displaying) and be ignored if the current textbox is still animating its text. '
 	), bgList);
