@@ -5,6 +5,7 @@
  */
 var gulp = require('gulp');
 var fs = require('fs');
+const del = require('del');
 var TreeNode = require('./interpreter/tree');
 var Method = require('./interpreter/method');
 var Args = require('./interpreter/arg');
@@ -1606,4 +1607,21 @@ gulp.task('watch', function() {
 		console.log('File ' + path + ' was removed');
 	});
 });
+
+gulp.task('clean',function(){
+	return del('export');
+});
+
+gulp.task('exportseq',function(){
+	var a = new Promise(function(resolve){
+		return gulp.src(['compiler.bat','gulpfile.js','install.bat','methods.json','package.json']).pipe(gulp.dest('export')).on('end',resolve);
+	});
+	var b = new Promise(function(resolve){
+		return gulp.src(['interpreter/**/*.*']).pipe(gulp.dest('export/interpreter')).on('end',resolve);
+	});
+	return Promise.all([a,b])
+});
+
+gulp.task('export',gulp.series('clean','exportseq'))
+
 gulp.task('default', gulp.parallel('series', 'watch'));
