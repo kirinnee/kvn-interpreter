@@ -449,6 +449,20 @@ function initCharacter(charList) {
 			'def/null/undefined': 'each character will appear every 20 milliseconds (normal scrolling speed)'
 		}
 	);
+	var newLine = new Args('newLine', ['nl', 'ln', 'linebreak', 'br'], 'boolean', 'boolean',
+		'When continue speaking, whether the text appears on a new line.', {
+			'true': 'text appears on a new line',
+			'false': 'text appears on the same line as the previous text',
+			'null/def/undefined': 'text appears on the same line as previous text'
+		}
+	);
+	var appendSpace = new Args('appendSpace', ['append', 'space'], 'boolean', 'boolean',
+		'When continue speaking, whether to add a space before displaying the text. Default is true. ( will add space by default)', {
+			'true': 'prepends a space before displaying the text. ',
+			'false': 'does not prepend a space before displaying the text',
+			'null/def/undefined': 'prepends a psace before displaying the text'
+		}
+	);
 	//common animations
 	var promise = new Args('promise', [], 'function', 'promise',
 		'A promise to be fulfilled. This is a function, when this animation or instant ends (whether skipped or not), the promise will be executed.', {
@@ -464,13 +478,13 @@ function initCharacter(charList) {
 	var swing = new Args('graph', ['g'], 'object', 'animation-graph',
 		'The animation interpolation type', {
 			'linear': 'normal',
-			'swing':'slow-fast-slow',
-			'easeIn':'slow->fast',
-			'easeOut':'fast->slow',
+			'swing': 'slow-fast-slow',
+			'easeIn': 'slow->fast',
+			'easeOut': 'fast->slow',
 			'easeBack': 'fast till exceed -> slowly go back to correct position',
-			'elastic' : 'rubberband effect',
-			'bounce' :'like ball bouncing',
-			'slowMotion' :'slow motion effect',
+			'elastic': 'rubberband effect',
+			'bounce': 'like ball bouncing',
+			'slowMotion': 'slow motion effect',
 			'stepped': 'Not continous, jagged. Stepped function',
 			'rough': 'random sharp jumps',
 			'null/undefined': 'The character default animation-interpolation policy. To change check the method setDefaultAnimationInterpolation',
@@ -506,11 +520,10 @@ function initCharacter(charList) {
 			'null/undefined': 'character\'s default name during construction'
 		}
 	);
-
 	addMethodToList(
-		new Method('changeName',[],null,[name],lexer,set,
+		new Method('changeName', [], null, [name], lexer, set,
 			"Changes the display name of the character",
-		),charList);
+		), charList);
 	//Chain Constructors
 	addMethodToList(
 		new Method('complete', [], 'complete', [], lex, "Chain Constructor", "Marks the completion of the character during construction. All values set by chain constructors, setters or pre-anim prior to this method call will be set as the character's default values. When calling settings and animations, if the parameter is undefined or null, it will assume to animate to/set to these default values"), charList);
@@ -661,7 +674,7 @@ function initCharacter(charList) {
 	addMethodToList(new Method('speak', ['say'], null, [text, promise, texttime, skip], lex, anim,
 		'Make the character open the text box and say stuff. It will use the character\'s current name as the name. Do note that this will clear whatever text there are in the current textbox (if it is completed displaying) and be ignored if the current textbox is still animating its text. '
 	), charList);
-	addMethodToList(new Method('contSpeaking', ['contSpeak', 'contSay', 'cont'], null, [text, promise, texttime, skip], lex, anim,
+	addMethodToList(new Method('contSpeaking', ['contSpeak', 'contSay', 'cont'], null, [text, promise, texttime, skip,newLine,appendSpace], lex, anim,
 		'This method is exactly same as the speak method ,except it does not clear the textbox before display its own text. '
 	), charList);
 	addMethodToList(new Method('setDefaultFlip', ['setDefFlip'], null, [promise, time, swing, skip], lex, anim,
@@ -749,16 +762,15 @@ function initCharacter(charList) {
 	addMethodToList(new Method('glitch', [], null, [spriteName], lex, fr,
 		"Glitches the character constantly, the character will constantly glitch until .fix() is called. You may make the glitchs have a different sprite, if not stated, the sprite will always change with the character sprite, else, the glitch will always have the specified sprite. "
 	), charList);
-	addMethodToList(new Method('endSpeak', [], null, [promise, spsTime,swing,skip], lex, fr,
+	addMethodToList(new Method('endSpeak', [], null, [promise, spsTime, swing, skip], lex, fr,
 		"Reverts the character back to normal size after preSpeak is used."
 	), charList);
-	addMethodToList(new Method('preSpeak', [], null, [promise, scaleV, spsTime,swing,skip], lex, fr,
+	addMethodToList(new Method('preSpeak', [], null, [promise, scaleV, spsTime, swing, skip], lex, fr,
 		"Scales the character and brings the character to front. Commonly used before speaking"
 	), charList);
-	addMethodToList(new Method('interupt', [], null, [promise, scaleV, spsTime,swing,skip], lex, fr,
+	addMethodToList(new Method('interupt', [], null, [promise, scaleV, spsTime, swing, skip], lex, fr,
 		"Prespeaks and interupt the previous character while talking"
 	), charList);
-
 	addMethodToList(new Method('fix', [], null, [], lex, fr,
 		"Fixes the character if its glitching"
 	), charList);
@@ -1066,15 +1078,16 @@ function initBackground(bgList) {
 	var swing = new Args('graph', ['g'], 'object', 'animation-graph',
 		'The animation interpolation type', {
 			'linear': 'normal',
-			'swing':'slow-fast-slow',
-			'easeIn':'slow->fast',
-			'easeOut':'fast->slow',
+			'swing': 'slow-fast-slow',
+			'easeIn': 'slow->fast',
+			'easeOut': 'fast->slow',
 			'easeBack': 'fast till exceed -> slowly go back to correct position',
-			'elastic' : 'rubberband effect',
-			'bounce' :'like ball bouncing',
-			'slowMotion' :'slow motion effect',
+			'elastic': 'rubberband effect',
+			'bounce': 'like ball bouncing',
+			'slowMotion': 'slow motion effect',
 			'stepped': 'Not continous, jagged. Stepped function',
-			'rough': 'random sharp jumps','null/undefined': 'The stage default animation-interpolation policy. To change check the method setDefaultAnimationInterpolation',
+			'rough': 'random sharp jumps',
+			'null/undefined': 'The stage default animation-interpolation policy. To change check the method setDefaultAnimationInterpolation',
 			'def': 'swing'
 		});
 	var skip = new Args('skip', ['s'], 'boolean', 'boolean',
@@ -1278,10 +1291,10 @@ function initBackground(bgList) {
 		'Skew background from the current position but does not animate it yet. Values will be applied on next animation.'
 	), bgList);
 	//animations
-	addMethodToList(new Method('fadeInBackground', ['fadeIn','appear'], null, [time,promise,swing,skip], lex, anim,
+	addMethodToList(new Method('fadeInBackground', ['fadeIn', 'appear'], null, [time, promise, swing, skip], lex, anim,
 		'Fades in the background in the given time. (Change background layer opacity to 1)'
 	), bgList);
-	addMethodToList(new Method('fadeOutBackground', ['fadeOut','disappear'], null, [time,promise,swing,skip], lex, anim,
+	addMethodToList(new Method('fadeOutBackground', ['fadeOut', 'disappear'], null, [time, promise, swing, skip], lex, anim,
 		'Fades out the background in the given time. (Change background layer opacity to 0)'
 	), bgList);
 	addMethodToList(new Method('displayText', [], null, [text, texttime, promise, name, centered, fontSize, color, bold, italic, skip], lex, anim,
@@ -1442,10 +1455,8 @@ function registerMacro(lines) {
 			if (marcoList[marcoCmd] !== null && typeof marcoList[marcoCmd] !== "undefined") {
 				throw new Error("Macro already exist, please change macro name! Line " + index);
 			}
-
 			marcoList[marcoCmd] = new Macro(marcoCmd, args, l);
 		}
-
 	}
 	return [lines, marcoList];
 }
@@ -1474,57 +1485,56 @@ function stripSingleComments(string) {
 }
 
 function uniq(a) {
-    return a.sort().filter(function(item, pos, ary) {
-        return !pos || item != ary[pos - 1];
-    })
+	return a.sort().filter(function(item, pos, ary) {
+		return !pos || item != ary[pos - 1];
+	})
 }
 
-function getJSON(o){
-    var r = {};
-    for (var x in o) {
+function getJSON(o) {
+	var r = {};
+	for (var x in o) {
 		var method = o[x];
 		var key = method.key;
 		var alias = method.alias;
 		alias.push(key);
-        var argArray =[];
+		var argArray = [];
 		var code = method.realName + "("
 		for (var i = 0; i < method.order.length; i++) {
-            arg = method.order[i];
-            var aName = arg.key;
-            var aLias = arg.alias;
-            aLias.push(arg.key);
-            var type = arg.dtype;
-            var desc = arg.des;
-            var aV = arg.acceptedValues;
+			arg = method.order[i];
+			var aName = arg.key;
+			var aLias = arg.alias;
+			aLias.push(arg.key);
+			var type = arg.dtype;
+			var desc = arg.des;
+			var aV = arg.acceptedValues;
 			aLias = uniq(aLias);
-            var ao = {
-                name: aName,
-                alias: aLias,
-                type: type,
-                desc: desc,
-                accepted: aV
-            }
-            argArray.push(ao);
+			var ao = {
+				name: aName,
+				alias: aLias,
+				type: type,
+				desc: desc,
+				accepted: aV
+			}
+			argArray.push(ao);
 			code += (i === 0 ? "" : ",") + arg.key;
 		}
 		code += ");"
 		var isSingle = method.isSingleArg();
 		var type = method.type;
 		var des = method.des;
-
 		alias = uniq(alias);
-        var obj = {
-            alias: alias,
-            name: key,
-            code: code,
-            single: isSingle,
-            type: type,
-            desc: des,
-            arg: argArray
-        };
-        r[key] = obj;
- 	}
-    return r;
+		var obj = {
+			alias: alias,
+			name: key,
+			code: code,
+			single: isSingle,
+			type: type,
+			desc: des,
+			arg: argArray
+		};
+		r[key] = obj;
+	}
+	return r;
 }
 
 function parseDefintions(lines) {
@@ -1583,12 +1593,11 @@ function parseDefintions(lines) {
 gulp.task('generate', function(done) {
 	var arr = initAllMethods([], []);
 	var char = getJSON(arr[0]);
-    var bg = getJSON(arr[1]);
-    var obj ={
-        char:char,
-        bg:bg
-    }
-
+	var bg = getJSON(arr[1]);
+	var obj = {
+		char: char,
+		bg: bg
+	}
 	var s = JSON.stringify(obj);
 	fs.writeFile('methods.json', s, function(err) {
 		if (err) {
@@ -1607,21 +1616,17 @@ gulp.task('watch', function() {
 		console.log('File ' + path + ' was removed');
 	});
 });
-
-gulp.task('clean',function(){
+gulp.task('clean', function() {
 	return del('export');
 });
-
-gulp.task('exportseq',function(){
-	var a = new Promise(function(resolve){
-		return gulp.src(['compiler.bat','gulpfile.js','install.bat','methods.json','package.json']).pipe(gulp.dest('export')).on('end',resolve);
+gulp.task('exportseq', function() {
+	var a = new Promise(function(resolve) {
+		return gulp.src(['compiler.bat', 'gulpfile.js', 'install.bat', 'methods.json', 'package.json']).pipe(gulp.dest('export')).on('end', resolve);
 	});
-	var b = new Promise(function(resolve){
-		return gulp.src(['interpreter/**/*.*']).pipe(gulp.dest('export/interpreter')).on('end',resolve);
+	var b = new Promise(function(resolve) {
+		return gulp.src(['interpreter/**/*.*']).pipe(gulp.dest('export/interpreter')).on('end', resolve);
 	});
-	return Promise.all([a,b])
+	return Promise.all([a, b])
 });
-
-gulp.task('export',gulp.series('clean','exportseq'))
-
+gulp.task('export', gulp.series('clean', 'exportseq'))
 gulp.task('default', gulp.parallel('series', 'watch'));
