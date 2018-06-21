@@ -25,7 +25,36 @@ function numberOfSpaces(text) {
 	}
 	return count;
 }
-//export together
+
+//decompile
+gulp.task('decomplie',function(){
+	var config = fs.readFileSync('./kvn/config.js');
+	var scripts = eval(config + 'scripts');
+	var promises = [];
+	for (var x in scripts) {
+		var script = scripts[x];
+		var p = new Promise(function(resolve, reject) {
+			fs.readFile('./kvn/scripts/' + script, 'utf8', function(err, data) {
+				var lines = data.split("\n")
+					.map((d, i) => {
+						return {
+							index: i + 1,
+							code: d
+						}
+					})
+					.map(d => {
+						d.code = d.code.replace(/\t/g, '    ');
+						return d;
+					})
+					.filter(d => d.code !== null && typeof d.code === "string" && d.code.trim() !== "")
+					//strip comments
+					.map(d => stripSingleComments(d))
+					.filter(d => d.code !== null && typeof d.code === "string" && d.code.trim() !== "")
+			});
+		});
+});
+
+//compile
 gulp.task('series', function(done) {
 	var config = fs.readFileSync('./kvn/config.js');
 	var scripts = eval(config + 'scripts');
