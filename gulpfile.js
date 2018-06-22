@@ -26,34 +26,6 @@ function numberOfSpaces(text) {
 	return count;
 }
 
-//decompile
-gulp.task('decomplie',function(){
-	var config = fs.readFileSync('./kvn/config.js');
-	var scripts = eval(config + 'scripts');
-	var promises = [];
-	for (var x in scripts) {
-		var script = scripts[x];
-		var p = new Promise(function(resolve, reject) {
-			fs.readFile('./kvn/scripts/' + script, 'utf8', function(err, data) {
-				var lines = data.split("\n")
-					.map((d, i) => {
-						return {
-							index: i + 1,
-							code: d
-						}
-					})
-					.map(d => {
-						d.code = d.code.replace(/\t/g, '    ');
-						return d;
-					})
-					.filter(d => d.code !== null && typeof d.code === "string" && d.code.trim() !== "")
-					//strip comments
-					.map(d => stripSingleComments(d))
-					.filter(d => d.code !== null && typeof d.code === "string" && d.code.trim() !== "")
-			});
-		});
-});
-
 //compile
 gulp.task('series', function(done) {
 	var config = fs.readFileSync('./kvn/config.js');
@@ -104,8 +76,8 @@ gulp.task('series', function(done) {
 						resolve();
 					});
 				} catch (e) {
-					console.log("Caught Error: " + e.stack)
-					var x = 'displayError(\'' + e + "');";
+					console.log("Caught Error in File ",script +": ", e.stack)
+					var x = 'displayError(\'Caught Error in File ' + script+ ': '  + e + "');";
 					fs.writeFile("./kvn/scripts/" + os, x, function(err) {
 						if (err) {
 							return console.log(err);
@@ -797,8 +769,8 @@ function initCharacter(charList) {
 	addMethodToList(new Method('preSpeak', [], null, [promise, scaleV, spsTime, swing, skip], lex, fr,
 		"Scales the character and brings the character to front. Commonly used before speaking"
 	), charList);
-	addMethodToList(new Method('interupt', [], null, [promise, scaleV, spsTime, swing, skip], lex, fr,
-		"Prespeaks and interupt the previous character while talking"
+	addMethodToList(new Method('interupt', ['interrupt'], null, [promise, scaleV, spsTime, swing, skip], lex, fr,
+		"Prespeaks and interrupt the previous character while talking"
 	), charList);
 	addMethodToList(new Method('fix', [], null, [], lex, fr,
 		"Fixes the character if its glitching"

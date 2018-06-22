@@ -73,7 +73,6 @@ module.exports = class Method {
 						var aKey = arrays[x].key.trim();
 						if (aKey === key) {
 							//if key for this method and key for parsed is the same
-							console.log('array: ', arrays[x])
 							try {
 								var v = arrays[x].value === null ? null : arrays[x].value.trim();
 							} catch (e) {
