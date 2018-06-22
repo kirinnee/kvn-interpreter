@@ -1,3 +1,3 @@
 cd %cd%
-call npm install
+call npm i
 pause

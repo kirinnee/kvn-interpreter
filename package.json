@@ -1,44 +1,27 @@
 {
-    "name": "Project Sophie KVN",
-    "version": "0.0.2",
-    "description": "Compiler from .kvn to .js for KVN version 0.4.5",
-    "repository": "none",
-    "license": "Copyright Kirinnee97 All Rights Reserverd",
-    "author": "kirinnee97 @ https://bigbulb.studio",
-    "contributors": [],
-    "dependencies": {
-        "del": "^3.0.0",
-        "gulp": "github:gulpjs/gulp#4.0"
-    },
-    "devDependencies": {
-        "babel-core": "^6.26.3",
-        "babel-preset-env": "^1.7.0",
-        "gulp-babel": "^7.0.1"
-    },
-    "babel": {
-        "minified": "true",
-        "presets": [
-            [
-                "env",
-                {
-                    "targets": {
-                        "browsers": [
-                            "last 2 versions",
-                            "safari >= 7"
-                        ]
-                    }
-                }
-            ]
-        ]
-    },
-    "cssnano": {
-        "preset": [
-            "default",
-            {
-                "discardComments": {
-                    "removeAll": true
-                }
-            }
-        ]
-    }
+  "name": "kvn-interpreter",
+  "version": "0.0.3",
+  "description": "Interpreter for KVN scripts",
+  "main": "compiler.bat",
+  "scripts": {
+    "test": "gulp"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kirinnee/kvn-interpreter.git"
+  },
+  "keywords": [
+    "kvn",
+    "interpreter"
+  ],
+  "author": "Kirinnee",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kirinnee/kvn-interpreter/issues"
+  },
+  "homepage": "https://github.com/kirinnee/kvn-interpreter#readme",
+  "dependencies": {
+    "del": "^3.0.0",
+    "gulp": "github:gulpjs/gulp#4.0"
+  }
 }
