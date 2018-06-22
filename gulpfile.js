@@ -1608,7 +1608,7 @@ gulp.task('generate', function(done) {
 	done();
 })
 gulp.task('watch', function() {
-	var watcher = gulp.watch('kvn/scripts/*.kvn', gulp.parallel('series'));
+	var watcher = gulp.watch('kvn/scripts/**/*.kvn', gulp.parallel('series'));
 	watcher.on('change', function(path, stats) {
 		console.log('File ' + path + ' was changed');
 		gulp.parallel('series')
