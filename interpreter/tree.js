@@ -46,7 +46,7 @@ module.exports = class TreeNode {
 								.join('\n');
 							code += ns + '\n';
 						}
-						code += "})";
+						code += "}, function(){return null})";
 						code += isLast ? "\n]" : "";
 						return code;
 					case "scene":

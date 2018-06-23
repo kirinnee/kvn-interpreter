@@ -36,7 +36,7 @@ gulp.task('series', function(done) {
 		let os = script;
 		script = script.replace('.js', '.kvn');
 		var p = new Promise(function(resolve, reject) {
-			fs.readFile('./kvn/scripts/' + script, 'utf8', function(err, data) {
+			fs.readFile('../kvn/scripts/' + script, 'utf8', function(err, data) {
 				if (err)
 					throw err;
 				var lines = data.split("\n")
@@ -69,7 +69,7 @@ gulp.task('series', function(done) {
 					var tree = beautify(js);
 					var codes = tree.travse([]);
 					var pp = codes.join('\n');
-					fs.writeFile("./kvn/scripts/" + os, pp, function(err) {
+					fs.writeFile("../kvn/scripts/" + os, pp, function(err) {
 						if (err) {
 							return console.log(err);
 						}
@@ -78,7 +78,7 @@ gulp.task('series', function(done) {
 				} catch (e) {
 					console.log("Caught Error in File ",script +": ", e.stack)
 					var x = 'displayError(\'Caught Error in File ' + script+ ': '  + e + "');";
-					fs.writeFile("./kvn/scripts/" + os, x, function(err) {
+					fs.writeFile("../kvn/scripts/" + os, x, function(err) {
 						if (err) {
 							return console.log(err);
 						}
