@@ -31,7 +31,6 @@ gulp.task('series', function(done) {
 	var config = fs.readFileSync('../kvn/config.js');
 	var scripts = eval(config + 'scripts');
 	var promises = [];
-
 	var soundCodes = [];
 	for (var x in scripts) {
 		var script = scripts[x];
@@ -60,10 +59,9 @@ gulp.task('series', function(done) {
 					var ret = parseDefintions(lines);
 					lines = ret[0];
 					var ex = initAllMethods({}, {}, {});
-					var ret2 = parseSound(lines,ex[2],soundCodes);
+					var ret2 = parseSound(lines, ex[2], soundCodes);
 					lines = ret2[0]
 					soundCodes = ret2[1]; //obtain sound code
-
 					var objList = ret[1]; //obtain object tree
 					var varList = ret[2]; //obtain var tree
 					ret = registerMacro(lines);
@@ -71,11 +69,8 @@ gulp.task('series', function(done) {
 					var marcoList = ret[1]; //obtain macro list
 					var codeTree = parseScenes(lines); //obtain true code tree
 					//console.log(codeTree.getTreeView());
-
 					var parser = new Parser(codeTree, marcoList, objList, ex[0], ex[1], ex[2], varList);
-
 					var js = parser.parse();
-
 					var tree = beautify(js);
 					var codes = tree.travse([]);
 					var pp = codes.join('\n');
@@ -97,15 +92,13 @@ gulp.task('series', function(done) {
 				}
 			});
 		});
-
-
 		promises.push(p);
 	}
-	Promise.all(promises)
-		.then(d=>{
-			return new Promise(function(resolve){
-				fs.readFile('../kvn/scripts/init.kvn','utf8', function(err, data) {
-					if(err)throw err
+	return new Promise(function(resolve){
+		Promise.all(promises)
+			.then(d => {
+				fs.readFile('../kvn/scripts/init.kvn', 'utf8', function(err, data) {
+					if (err) throw err
 					var lines = data.split("\n")
 						.map((d, i) => {
 							return {
@@ -125,10 +118,9 @@ gulp.task('series', function(done) {
 						var ret = parseDefintions(lines);
 						lines = ret[0];
 						var ex = initAllMethods({}, {}, {});
-						var ret2 = parseSound(lines,ex[2],soundCodes);
+						var ret2 = parseSound(lines, ex[2], soundCodes);
 						lines = ret2[0]
 						soundCodes = ret2[1]; //obtain sound code
-
 						var objList = ret[1]; //obtain object tree
 						var varList = ret[2]; //obtain var tree
 						ret = registerMacro(lines);
@@ -136,24 +128,20 @@ gulp.task('series', function(done) {
 						var marcoList = ret[1]; //obtain macro list
 						var codeTree = parseScenes(lines); //obtain true code tree
 						//console.log(codeTree.getTreeView());
-
 						var parser = new Parser(codeTree, marcoList, objList, ex[0], ex[1], ex[2], varList);
-
 						var js = parser.parse();
-
 						var tree = beautify(js);
 						var codes = tree.travse([]);
 						var pp = codes.join('\n');
 						//sound code
 						var codeOfSound = "function soundLoadPhase() {\n";
-						for(var i9=0;i9<soundCodes.length;i9++){
-
-							var code = '\t'+soundCodes[i9].trim();
-							codeOfSound+= code;
+						for (var i9 = 0; i9 < soundCodes.length; i9++) {
+							var code = '\t' + soundCodes[i9].trim();
+							codeOfSound += code;
 						}
 						codeOfSound += "}\n\n";
-						pp=codeOfSound + pp;
-						fs.writeFile("../kvn/scripts/init.js" , pp, function(err) {
+						pp = codeOfSound + pp;
+						fs.writeFile("../kvn/scripts/init.js", pp, function(err) {
 							if (err) {
 								return console.log(err);
 							}
@@ -162,7 +150,7 @@ gulp.task('series', function(done) {
 					} catch (e) {
 						console.log("Caught Error in File ", 'init.js' + ": ", e.stack)
 						var x = 'displayError(\'Caught Error in File init.js' + ': ' + e + "');";
-						fs.writeFile("../kvn/scripts/init.js" , x, function(err) {
+						fs.writeFile("../kvn/scripts/init.js", x, function(err) {
 							if (err) {
 								return console.log(err);
 							}
@@ -170,7 +158,6 @@ gulp.task('series', function(done) {
 						});
 					}
 				});
-
 			});
 		});
 });
@@ -235,25 +222,25 @@ function parseScenes(lines) {
 	return codeTree;
 }
 
-function parseSound(lines,conList,array){
+function parseSound(lines, conList, array) {
 	for (var i = 0; i < lines.length; i++) {
 		var line = lines[i].code;
 		var index = lines[i].index;
 		var args = line.split(' ')
 			.filter(d => d !== null && typeof d === "string" && d.trim() !== "")
-			.map(d=>d.trim());
+			.map(d => d.trim());
 		var key = args[0];
-		if(key==="create"){
+		if (key === "create") {
 			var type = args[1];
-			if(type === "sound"){
+			if (type === "sound") {
 				var con = conList["sound"];
-				array.push(con.parseCode("sound",args.join(' '),[],1,index));
+				array.push(con.parseCode("sound", args.join(' '), [], 1, index));
 				lines.splice(i, 1);
 				i--;
 			}
 		}
 	}
-	return [lines,array];
+	return [lines, array];
 }
 
 function beautify(data) {
@@ -377,13 +364,13 @@ function initConstructor(conList) {
 			'null/undefined': 'Sound will stop playing once it reaches the end of its playback'
 		}
 	)
-	addMethodToList(new Construct('character', [], 'Character', [id,name, image, width, height, x, y, aX, aY], lex, c,
+	addMethodToList(new Construct('character', [], 'Character', [id, name, image, width, height, x, y, aX, aY], lex, c,
 		'Creates a Character Object'
 	), conList);
-	addMethodToList(new Construct('stage', [], 'Stage', [id,bgi], lex, c,
+	addMethodToList(new Construct('stage', [], 'Stage', [id, bgi], lex, c,
 		'Creates a Stage Object'
 	), conList);
-	addMethodToList(new Construct('option', [], 'Options', [opText,id,promise], lex, c,
+	addMethodToList(new Construct('option', [], 'Options', [opText, id, promise], lex, c,
 		'Creates a Option Object'
 	), conList);
 	addMethodToList(new Construct('sound', [], 'GameSound', [soundgroup, source, loop], lex, c,
@@ -1757,27 +1744,26 @@ function parseDefintions(lines) {
 		var args = line.split(' ')
 			.filter(d => d !== null && typeof d === "string" && d.trim() !== "");
 		var key = args[0];
-		if(key.trim() === "create"){
-			if(args.length < 4){
+		if (key.trim() === "create") {
+			if (args.length < 4) {
 				throw new Error('Syntax Error: Creation of objection is incorrect. Too little arguments. Line: ' + index);
 			}
 			var type = args[1].trim();
 			var name = args[2].trim();
-			switch(type){
+			switch (type) {
 				case "stage":
 				case "character":
 				case "sound":
 				case "option":
-					if(gameObjectList[name] !== null && typeof gameObjectList[name] !== "undefined"){
-						throw new Error('GameObject '+name+ ' has already been declared! at Line '+ index);
+					if (gameObjectList[name] !== null && typeof gameObjectList[name] !== "undefined") {
+						throw new Error('GameObject ' + name + ' has already been declared! at Line ' + index);
 					}
 					gameObjectList[name] = new GameObject(name, type);
 					break;
 				default:
-					throw new Error('Unsupported Operation: No such object type: '+ type, "; at Line "+ index);
+					throw new Error('Unsupported Operation: No such object type: ' + type, "; at Line " + index);
 			}
 		}
-
 		if (key.trim() === "declare" || key.trim() === "dec") {
 			if (args.length !== 4) {
 				throw new Error('Syntax Error: Declaration of gameobject is incorrect! Argument mismatch:' + args.length + " at Line " + index);
@@ -1822,9 +1808,8 @@ function parseDefintions(lines) {
 	}
 	return [lines, gameObjectList, variableList];
 }
-
 gulp.task('generate', function(done) {
-	var arr = initAllMethods([], [],[]);
+	var arr = initAllMethods([], [], []);
 	var char = getJSON(arr[0]);
 	var bg = getJSON(arr[1]);
 	var con = getJSON(arr[2]);
@@ -1841,7 +1826,6 @@ gulp.task('generate', function(done) {
 	});
 	done();
 })
-
 gulp.task('watch', function() {
 	var watcher = gulp.watch('../kvn/scripts/**/*.kvn', gulp.parallel('series'));
 	watcher.on('change', function(path, stats) {
@@ -1852,11 +1836,9 @@ gulp.task('watch', function() {
 		console.log('File ' + path + ' was removed');
 	});
 });
-
 gulp.task('clean', function() {
 	return del('export');
 });
-
 gulp.task('exportseq', function() {
 	var a = new Promise(function(resolve) {
 		return gulp.src(['compiler.bat', 'gulpfile.js', 'install.bat', 'methods.json', 'package.json']).pipe(gulp.dest('export')).on('end', resolve);
@@ -1866,7 +1848,5 @@ gulp.task('exportseq', function() {
 	});
 	return Promise.all([a, b])
 });
-
 gulp.task('export', gulp.series('clean', 'exportseq'))
-
 gulp.task('default', gulp.parallel('series', 'watch'));
