@@ -42,9 +42,11 @@ module.exports = class TreeNode {
 						var constructionMethod = conList[caller];
 						if (caller === "option") {
 							var ret = 'return false;';
-							for (var i in arr) {
-								if (arr[i].trim().substr(0, 9) === "playScene") {
-									ret = 'return true;';
+							if(arr.length>0){
+								for (var i in arr) {
+									if (arr[i].trim().substr(0, 9) === "playScene") {
+										ret = 'return true;';
+									}
 								}
 							}
 							arr.push(ret);

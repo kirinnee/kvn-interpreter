@@ -144,10 +144,10 @@ gulp.task('series', function(done) {
 						var tree = beautify(js);
 						var codes = tree.travse([]);
 						var pp = codes.join('\n');
-
 						//sound code
 						var codeOfSound = "function soundLoadPhase() {\n";
-						for(var i9=0;i9<soundCodes;i9++){
+						for(var i9=0;i9<soundCodes.length;i9++){
+
 							var code = '\t'+soundCodes[i9].trim();
 							codeOfSound+= code;
 						}
@@ -242,9 +242,9 @@ function parseSound(lines,conList,array){
 		var args = line.split(' ')
 			.filter(d => d !== null && typeof d === "string" && d.trim() !== "")
 			.map(d=>d.trim());
-		var key = args.shift();
+		var key = args[0];
 		if(key==="create"){
-			var type = args.shift();
+			var type = args[1];
 			if(type === "sound"){
 				var con = conList["sound"];
 				array.push(con.parseCode("sound",args.join(' '),[],1,index));
@@ -377,13 +377,13 @@ function initConstructor(conList) {
 			'null/undefined': 'Sound will stop playing once it reaches the end of its playback'
 		}
 	)
-	addMethodToList(new Construct('character', [], 'Character', [name, image, width, height, x, y, aX, aY], lex, c,
+	addMethodToList(new Construct('character', [], 'Character', [id,name, image, width, height, x, y, aX, aY], lex, c,
 		'Creates a Character Object'
 	), conList);
-	addMethodToList(new Construct('stage', [], 'Stage', [bgi], lex, c,
+	addMethodToList(new Construct('stage', [], 'Stage', [id,bgi], lex, c,
 		'Creates a Stage Object'
 	), conList);
-	addMethodToList(new Construct('option', [], 'Options', [opText,id, promise], lex, c,
+	addMethodToList(new Construct('option', [], 'Options', [opText,id,promise], lex, c,
 		'Creates a Option Object'
 	), conList);
 	addMethodToList(new Construct('sound', [], 'GameSound', [soundgroup, source, loop], lex, c,
@@ -749,7 +749,7 @@ function initCharacter(charList) {
 	addMethodToList(new Method('setPreSpeakTime', [], null, [spsTime], lexer, cc,
 		"Set the default time taken for the 'preSpeak' method to scale the character to prepare for speech"
 	), charList);
-	addMethodToList(new Method('setDefaultAnimationInterpolation', ['setDefGraph', 'setDefEase'], null, [swing], lexer, cc,
+	addMethodToList(new Method('setDefaultAnimationInterpolation', ['setDefGraph', 'setDefEase'], 'setDefaultAnimateInterpolation', [swing], lexer, cc,
 		"The default animation interpolation graph (easing) the character uses for all its animation if the animation did not specify."
 	), charList);
 	addMethodToList(new Method('addSprite', [], null, [spriteName, spritePath], lex, cc,
@@ -1402,7 +1402,7 @@ function initBackground(bgList) {
 	addMethodToList(new Method('setDefaultSkippable', ['setDefSkip'], null, [dskip], lexer, cc,
 		"Boolean value. Changes whether stage animation can be skipped by default (when animation does not specify the animation skip-ability)."
 	), bgList);
-	addMethodToList(new Method('setDefaultAnimateInterpolation', ['setDefGraph'], null, [swing], lexer, cc,
+	addMethodToList(new Method('setDefaultAnimateInterpolation', ['setDefGraph'], 'setDefaultAnimateInterpolation', [swing], lexer, cc,
 		"The default animation interpolation graph (easing) the stage uses for all its animation if the animation did not specify."
 	), bgList);
 	addMethodToList(new Method('addBackground', ['addBG', 'addBkgd', 'addBg'], null, [spriteName, spritePath], lex, cc,
@@ -1763,7 +1763,6 @@ function parseDefintions(lines) {
 			}
 			var type = args[1].trim();
 			var name = args[2].trim();
-			console.log(type,name);
 			switch(type){
 				case "stage":
 				case "character":
@@ -1825,12 +1824,14 @@ function parseDefintions(lines) {
 }
 
 gulp.task('generate', function(done) {
-	var arr = initAllMethods([], []);
+	var arr = initAllMethods([], [],[]);
 	var char = getJSON(arr[0]);
 	var bg = getJSON(arr[1]);
+	var con = getJSON(arr[2]);
 	var obj = {
 		char: char,
-		bg: bg
+		bg: bg,
+		con: con,
 	}
 	var s = JSON.stringify(obj);
 	fs.writeFile('methods.json', s, function(err) {
