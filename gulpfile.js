@@ -119,11 +119,15 @@ function parseScenes(lines) {
 				var create = new TreeNode(0, line.trim(), index);
 				codeTree.add(create);
 				latestNode = create;
+			} else if (line.substring(0, 5).trim() === "start") {
+				var create = new TreeNode(0, line.trim(), index);
+				codeTree.add(create);
+				latestNode = create;
 			} else {
 				codeTree.add(new TreeNode(0, line.trim(), index));
 			}
 		} else {
-			if (!hasFrame && latestNode.getKey() !== "create") {
+			if (!hasFrame && latestNode.getKey() !== "create" && latestNode.getKey() !== "start") {
 
 				continue;
 			}
@@ -1657,7 +1661,7 @@ function parseDefintions(lines) {
 			}
 			var type = args[1].trim();
 			var name = args[2].trim();
-			
+
 			switch(type){
 				case "stage":
 				case "character":
@@ -1717,6 +1721,7 @@ function parseDefintions(lines) {
 	}
 	return [lines, gameObjectList, variableList];
 }
+
 gulp.task('generate', function(done) {
 	var arr = initAllMethods([], []);
 	var char = getJSON(arr[0]);
@@ -1733,6 +1738,7 @@ gulp.task('generate', function(done) {
 	});
 	done();
 })
+
 gulp.task('watch', function() {
 	var watcher = gulp.watch('../kvn/scripts/**/*.kvn', gulp.parallel('series'));
 	watcher.on('change', function(path, stats) {
@@ -1743,9 +1749,11 @@ gulp.task('watch', function() {
 		console.log('File ' + path + ' was removed');
 	});
 });
+
 gulp.task('clean', function() {
 	return del('export');
 });
+
 gulp.task('exportseq', function() {
 	var a = new Promise(function(resolve) {
 		return gulp.src(['compiler.bat', 'gulpfile.js', 'install.bat', 'methods.json', 'package.json']).pipe(gulp.dest('export')).on('end', resolve);
@@ -1755,5 +1763,7 @@ gulp.task('exportseq', function() {
 	});
 	return Promise.all([a, b])
 });
+
 gulp.task('export', gulp.series('clean', 'exportseq'))
+
 gulp.task('default', gulp.parallel('series', 'watch'));

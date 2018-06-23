@@ -49,6 +49,19 @@ module.exports = class TreeNode {
 						}
 						arr.push(ret);
 						return constructionMethod.parseCode(caller, this.code, arr, 0, this.sourceLine) + '\n';
+					case "start":
+						var code = "function publicStaticVoidMain(id){\n";
+						code +="\t\t	if(id===0){\n";
+						for (var i = 0; i < arr.length; i++) {
+							var p = arr[i];
+							var ns = p.split('\n')
+								.map(d => '  '.repeat(this.getDepth()) + d)
+								.join('\n');
+							code += ns + '\n';
+						}
+						code += "\t\t}\n";
+						code += "}\n";
+						return code;
 					case 'play':
 						var sceneid = this.getArg(1);
 						var sceneframe = typeof this.getArg(2) === "string" ? this.getArg(2) : "0";

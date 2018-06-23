@@ -7,7 +7,7 @@ module.exports = class Parser {
 		this.bgMethodList = bgMethodList;
 		this.charMethodList = charMethodList;
 		this.conList = conList;
-		this.commandList = ['let', 'mod', 'js', 'scene', 'frame','create','play'];
+		this.commandList = ['let', 'mod', 'js', 'scene', 'frame','create','play', 'start'];
 		this.varList = varList;
 	}
 	isCharMethod(method) {
@@ -121,6 +121,7 @@ module.exports = class Parser {
 				case "scene":
 				case "frame":
 				case "js":
+				case 'start':
 					node.canProm = true;
 					return true;
 				case "create":
