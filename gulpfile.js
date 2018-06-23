@@ -31,6 +31,8 @@ gulp.task('series', function(done) {
 	var config = fs.readFileSync('../kvn/config.js');
 	var scripts = eval(config + 'scripts');
 	var promises = [];
+
+	var soundCodes = [];
 	for (var x in scripts) {
 		var script = scripts[x];
 		let os = script;
@@ -57,6 +59,11 @@ gulp.task('series', function(done) {
 				try {
 					var ret = parseDefintions(lines);
 					lines = ret[0];
+					var ex = initAllMethods({}, {}, {});
+					var ret2 = parseSound(lines,ex[2],soundCodes);
+					lines = ret2[0]
+					soundCodes = ret2[1]; //obtain sound code
+
 					var objList = ret[1]; //obtain object tree
 					var varList = ret[2]; //obtain var tree
 					ret = registerMacro(lines);
@@ -64,9 +71,11 @@ gulp.task('series', function(done) {
 					var marcoList = ret[1]; //obtain macro list
 					var codeTree = parseScenes(lines); //obtain true code tree
 					//console.log(codeTree.getTreeView());
-					var ex = initAllMethods({}, {}, {});
+
 					var parser = new Parser(codeTree, marcoList, objList, ex[0], ex[1], ex[2], varList);
+
 					var js = parser.parse();
+
 					var tree = beautify(js);
 					var codes = tree.travse([]);
 					var pp = codes.join('\n');
@@ -88,9 +97,82 @@ gulp.task('series', function(done) {
 				}
 			});
 		});
+
+
 		promises.push(p);
 	}
-	return Promise.all(promises);
+	Promise.all(promises)
+		.then(d=>{
+			return new Promise(function(resolve){
+				fs.readFile('../kvn/scripts/init.kvn','utf8', function(err, data) {
+					if(err)throw err
+					var lines = data.split("\n")
+						.map((d, i) => {
+							return {
+								index: i + 1,
+								code: d
+							}
+						})
+						.map(d => {
+							d.code = d.code.replace(/\t/g, '    ');
+							return d;
+						})
+						.filter(d => d.code !== null && typeof d.code === "string" && d.code.trim() !== "")
+						//strip comments
+						.map(d => stripSingleComments(d))
+						.filter(d => d.code !== null && typeof d.code === "string" && d.code.trim() !== "")
+					try {
+						var ret = parseDefintions(lines);
+						lines = ret[0];
+						var ex = initAllMethods({}, {}, {});
+						var ret2 = parseSound(lines,ex[2],soundCodes);
+						lines = ret2[0]
+						soundCodes = ret2[1]; //obtain sound code
+
+						var objList = ret[1]; //obtain object tree
+						var varList = ret[2]; //obtain var tree
+						ret = registerMacro(lines);
+						lines = ret[0];
+						var marcoList = ret[1]; //obtain macro list
+						var codeTree = parseScenes(lines); //obtain true code tree
+						//console.log(codeTree.getTreeView());
+
+						var parser = new Parser(codeTree, marcoList, objList, ex[0], ex[1], ex[2], varList);
+
+						var js = parser.parse();
+
+						var tree = beautify(js);
+						var codes = tree.travse([]);
+						var pp = codes.join('\n');
+
+						//sound code
+						var codeOfSound = "function soundLoadPhase() {\n";
+						for(var i9=0;i9<soundCodes;i9++){
+							var code = '\t'+soundCodes[i9].trim();
+							codeOfSound+= code;
+						}
+						codeOfSound += "}\n\n";
+						pp=codeOfSound + pp;
+						fs.writeFile("../kvn/scripts/init.js" , pp, function(err) {
+							if (err) {
+								return console.log(err);
+							}
+							resolve();
+						});
+					} catch (e) {
+						console.log("Caught Error in File ", 'init.js' + ": ", e.stack)
+						var x = 'displayError(\'Caught Error in File init.js' + ': ' + e + "');";
+						fs.writeFile("../kvn/scripts/init.js" , x, function(err) {
+							if (err) {
+								return console.log(err);
+							}
+							resolve();
+						});
+					}
+				});
+
+			});
+		});
 });
 
 function parseScenes(lines) {
@@ -127,8 +209,7 @@ function parseScenes(lines) {
 				codeTree.add(new TreeNode(0, line.trim(), index));
 			}
 		} else {
-			if (!hasFrame && latestNode.getKey() !== "create" && latestNode.getKey() !== "start") {
-
+			if (!hasFrame && latestNode.getKey() !== "create" && latestNode.getKey() !== "start" && latestNode.parent.getKey() !== "create") {
 				continue;
 			}
 			var code = new TreeNode(s, line.trim(), index);
@@ -152,6 +233,27 @@ function parseScenes(lines) {
 		}
 	}
 	return codeTree;
+}
+
+function parseSound(lines,conList,array){
+	for (var i = 0; i < lines.length; i++) {
+		var line = lines[i].code;
+		var index = lines[i].index;
+		var args = line.split(' ')
+			.filter(d => d !== null && typeof d === "string" && d.trim() !== "")
+			.map(d=>d.trim());
+		var key = args.shift();
+		if(key==="create"){
+			var type = args.shift();
+			if(type === "sound"){
+				var con = conList["sound"];
+				array.push(con.parseCode("sound",args.join(' '),[],1,index));
+				lines.splice(i, 1);
+				i--;
+			}
+		}
+	}
+	return [lines,array];
 }
 
 function beautify(data) {
@@ -1661,7 +1763,7 @@ function parseDefintions(lines) {
 			}
 			var type = args[1].trim();
 			var name = args[2].trim();
-
+			console.log(type,name);
 			switch(type){
 				case "stage":
 				case "character":
@@ -1670,7 +1772,7 @@ function parseDefintions(lines) {
 					if(gameObjectList[name] !== null && typeof gameObjectList[name] !== "undefined"){
 						throw new Error('GameObject '+name+ ' has already been declared! at Line '+ index);
 					}
-					gameObjectList[name] = new GameObject(gameobj, type);
+					gameObjectList[name] = new GameObject(name, type);
 					break;
 				default:
 					throw new Error('Unsupported Operation: No such object type: '+ type, "; at Line "+ index);

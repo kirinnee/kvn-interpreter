@@ -29,7 +29,8 @@ module.exports = class TreeNode {
 		if (this.canProm) {
 			if (this.children.length > 0) {
 				for (var i = 0; i < this.children.length; i++) {
-					arr.push(this.children[i].generateJavascript(bgList, charList, conList, varList));
+					var compiled = this.children[i].generateJavascript(bgList, charList, conList, varList);
+					arr.push(compiled);
 				}
 			}
 		}
@@ -46,12 +47,20 @@ module.exports = class TreeNode {
 									ret = 'return true;';
 								}
 							}
+							arr.push(ret);
 						}
-						arr.push(ret);
-						return constructionMethod.parseCode(caller, this.code, arr, 0, this.sourceLine) + '\n';
+						if(caller === "option"){
+
+							return constructionMethod.parseCode(caller, this.code, arr, 0, this.sourceLine) + '\n';
+						}else{
+							var code=arr.join('\n\t');
+							code += '\n';
+							code = '\t'+code;
+							return constructionMethod.parseCode(caller, this.code, arr, 0, this.sourceLine) + '\n' +code;
+						}
 					case "start":
 						var code = "function publicStaticVoidMain(id){\n";
-						code +="\t\t	if(id===0){\n";
+						code += "\t\t	if(id===0){\n";
 						for (var i = 0; i < arr.length; i++) {
 							var p = arr[i];
 							var ns = p.split('\n')

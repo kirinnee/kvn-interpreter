@@ -113,7 +113,7 @@ module.exports = class Parser {
 		this.recursiveMacro(this.tree);
 		this.recursiveCheck(this.tree, this.resolveUnknownCommand);
 		this.recursiveCheck(this.tree, this.promiseCheck);
-		return this.tree.generateJavascript(this.bgMethodList, this.charMethodList, this.conList, this.varList);
+		return this.tree.generateJavascript(this.bgMethodList, this.charMethodList, this.conList, this.varList,[]);
 	}
 	promiseCheck(node, char) {
 		if (node.type === "command") {
@@ -125,7 +125,7 @@ module.exports = class Parser {
 					node.canProm = true;
 					return true;
 				case "create":
-					if(node.getArg(1).trim() === "option" ){
+					if(node.getArg(1).trim() !== "sound" ){
 						node.canProm = true;
 					}else{
 						node.canProm = false;
