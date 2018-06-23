@@ -7,7 +7,7 @@ module.exports = class Parser {
 		this.bgMethodList = bgMethodList;
 		this.charMethodList = charMethodList;
 		this.conList = conList;
-		this.commandList = ['let', 'mod', 'js', 'scene', 'frame','create'];
+		this.commandList = ['let', 'mod', 'js', 'scene', 'frame','create','play'];
 		this.varList = varList;
 	}
 	isCharMethod(method) {

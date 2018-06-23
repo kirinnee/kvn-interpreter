@@ -123,7 +123,6 @@ function parseScenes(lines) {
 				codeTree.add(new TreeNode(0, line.trim(), index));
 			}
 		} else {
-			console.log("Latest Node ",latestNode.getKey());
 			if (!hasFrame && latestNode.getKey() !== "create") {
 
 				continue;
@@ -272,7 +271,7 @@ function initConstructor(conList) {
 			'null/undefined': 'Sound will stop playing once it reaches the end of its playback'
 		}
 	)
-	addMethodToList(new Construct('character', ['char'], 'Character', [name, image, width, height, x, y, aX, aY], lex, c,
+	addMethodToList(new Construct('character', [], 'Character', [name, image, width, height, x, y, aX, aY], lex, c,
 		'Creates a Character Object'
 	), conList);
 	addMethodToList(new Construct('stage', [], 'Stage', [bgi], lex, c,
@@ -281,7 +280,7 @@ function initConstructor(conList) {
 	addMethodToList(new Construct('option', [], 'Options', [opText,id, promise], lex, c,
 		'Creates a Option Object'
 	), conList);
-	addMethodToList(new Construct('sound', ['music'], 'GameSound', [soundgroup, source, loop], lex, c,
+	addMethodToList(new Construct('sound', [], 'GameSound', [soundgroup, source, loop], lex, c,
 		'Creates a Sound Object'
 	), conList);
 	return conList;
@@ -1652,6 +1651,28 @@ function parseDefintions(lines) {
 		var args = line.split(' ')
 			.filter(d => d !== null && typeof d === "string" && d.trim() !== "");
 		var key = args[0];
+		if(key.trim() === "create"){
+			if(args.length < 4){
+				throw new Error('Syntax Error: Creation of objection is incorrect. Too little arguments. Line: ' + index);
+			}
+			var type = args[1].trim();
+			var name = args[2].trim();
+			
+			switch(type){
+				case "stage":
+				case "character":
+				case "sound":
+				case "option":
+					if(gameObjectList[name] !== null && typeof gameObjectList[name] !== "undefined"){
+						throw new Error('GameObject '+name+ ' has already been declared! at Line '+ index);
+					}
+					gameObjectList[name] = new GameObject(gameobj, type);
+					break;
+				default:
+					throw new Error('Unsupported Operation: No such object type: '+ type, "; at Line "+ index);
+			}
+		}
+
 		if (key.trim() === "declare" || key.trim() === "dec") {
 			if (args.length !== 4) {
 				throw new Error('Syntax Error: Declaration of gameobject is incorrect! Argument mismatch:' + args.length + " at Line " + index);

@@ -39,8 +39,20 @@ module.exports = class TreeNode {
 					case "create":
 						var caller = this.getArg(1);
 						var constructionMethod = conList[caller];
+						if (caller === "option") {
+							var ret = 'return false;';
+							for (var i in arr) {
+								if (arr[i].trim().substr(0, 9) === "playScene") {
+									ret = 'return true;';
+								}
+							}
+						}
+						arr.push(ret);
 						return constructionMethod.parseCode(caller, this.code, arr, 0, this.sourceLine) + '\n';
-
+					case 'play':
+						var sceneid = this.getArg(1);
+						var sceneframe = typeof this.getArg(2) === "string" ? this.getArg(2) : "0";
+						return 'playScene(\'' + sceneid + '\',' + sceneframe + ');\n';
 					case "frame":
 						var code = childval === 0 ? "[" : "\n,";
 						code += "new Frame(function(){ \n";
@@ -55,9 +67,10 @@ module.exports = class TreeNode {
 						code += isLast ? "\n]" : "";
 						return code;
 					case "scene":
+						var sid = typeof this.getArg(2) === "string" ? this.getArg(2) : this.getArg(1);
 						var code = 'let ' + this.getArg(1) + ' =  new Scene(' +
 							"\"" +
-							this.getArg(2).replace('"', '\\"').replace("'", "\\'") +
+							sid.replace('"', '\\"').replace("'", "\\'") +
 							"\",\n";
 						for (var i = 0; i < arr.length; i++) {
 							var p = arr[i];
@@ -111,7 +124,7 @@ module.exports = class TreeNode {
 					for (var i7 = callers.length - 1; i7 >= 0; i7--) {
 						var call = callers[i7];
 						if (i7 === callers.length - 1) {
-							latest = method.parseCode(call, this.code, arr, this.getDepth()+callers.length, this.sourceLine);
+							latest = method.parseCode(call, this.code, arr, this.getDepth() + callers.length, this.sourceLine);
 						} else {
 							latest = method.parseCode(call, this.code, [latest], this.getDepth(), this.sourceLine) + "\n";
 						}
@@ -144,11 +157,10 @@ module.exports = class TreeNode {
 					for (var i7 = callers.length - 1; i7 >= 0; i7--) {
 						var call = callers[i7];
 						if (i7 === callers.length - 1) {
-							latest = method.parseCode(call, this.code, arr, this.getDepth()+callers.length, this.sourceLine);
+							latest = method.parseCode(call, this.code, arr, this.getDepth() + callers.length, this.sourceLine);
 						} else {
 							latest = method.parseCode(call, this.code, [latest], this.getDepth(), this.sourceLine) + "\n";
 						}
-
 					}
 					return latest;
 				} else {
@@ -198,7 +210,8 @@ module.exports = class TreeNode {
 		return this.code.split(' ')[0];
 	}
 	getArg(i) {
-		return this.code.split(' ')[i].trim();
+		var a = this.code.split(' ')[i]
+		return typeof a === "string" ? a.trim() : a;
 	}
 	getTreeView(input) {
 		if (typeof input !== "string") input = "";
