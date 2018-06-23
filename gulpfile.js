@@ -16,6 +16,7 @@ var Variable = require('./interpreter/variables');
 var GameObject = require('./interpreter/gameobj');
 var Macro = require('./interpreter/marco');
 var Tree = require('./interpreter/simplertree');
+var Construct = require('./interpreter/constructor');
 
 function numberOfSpaces(text) {
 	var count = 0;
@@ -25,7 +26,6 @@ function numberOfSpaces(text) {
 	}
 	return count;
 }
-
 //compile
 gulp.task('series', function(done) {
 	var config = fs.readFileSync('../kvn/config.js');
@@ -63,8 +63,9 @@ gulp.task('series', function(done) {
 					lines = ret[0];
 					var marcoList = ret[1]; //obtain macro list
 					var codeTree = parseScenes(lines); //obtain true code tree
-					var ex = initAllMethods({}, {});
-					var parser = new Parser(codeTree, marcoList, objList, ex[0], ex[1], varList);
+					//console.log(codeTree.getTreeView());
+					var ex = initAllMethods({}, {}, {});
+					var parser = new Parser(codeTree, marcoList, objList, ex[0], ex[1], ex[2], varList);
 					var js = parser.parse();
 					var tree = beautify(js);
 					var codes = tree.travse([]);
@@ -76,8 +77,8 @@ gulp.task('series', function(done) {
 						resolve();
 					});
 				} catch (e) {
-					console.log("Caught Error in File ",script +": ", e.stack)
-					var x = 'displayError(\'Caught Error in File ' + script+ ': '  + e + "');";
+					console.log("Caught Error in File ", script + ": ", e.stack)
+					var x = 'displayError(\'Caught Error in File ' + script + ': ' + e + "');";
 					fs.writeFile("../kvn/scripts/" + os, x, function(err) {
 						if (err) {
 							return console.log(err);
@@ -114,11 +115,17 @@ function parseScenes(lines) {
 				var scene = new TreeNode(-1, line.trim(), index);
 				codeTree.add(scene);
 				latestScene = scene;
+			} else if (line.substring(0, 6).trim() === "create") {
+				var create = new TreeNode(0, line.trim(), index);
+				codeTree.add(create);
+				latestNode = create;
 			} else {
 				codeTree.add(new TreeNode(0, line.trim(), index));
 			}
 		} else {
-			if (!hasFrame) {
+			console.log("Latest Node ",latestNode.getKey());
+			if (!hasFrame && latestNode.getKey() !== "create") {
+
 				continue;
 			}
 			var code = new TreeNode(s, line.trim(), index);
@@ -181,6 +188,103 @@ function addMethodToList(method, list) {
 		list[arr[x]] = method;
 	}
 	return list;
+}
+
+function initConstructor(conList) {
+	var lex = new Lexer();
+	var c = 'Constructor';
+	var id = new Args('id', [], 'string', 'unique-string',
+		"The ID of the object. This string has to be unique, no 2 objects can have the same ID", {
+			'unique-string': 'any string that has not been used before'
+		}
+	)
+	var name = new Args('name', ['n'], 'string', 'string',
+		"The name of the character when he/she speaks", {
+			'string': 'Any string. Eg: John, Mother, Kami-sama'
+		}
+	)
+	var image = new Args('image', ['sprite', 'defImage', 'defSprite'], 'string', 'URL',
+		"Link to the default sprite the character is rendered with. This is anaimage link to the folder kvn/images/char/ folder by default", {
+			'string': 'The relative link to the image. Eg: sophie.png, chelsea/cry.jpg'
+		}
+	)
+	var width = new Args('width', ['w'], 'number', '!0+number',
+		"The width of the character in terms of percentage of the VN's screen's width*", {
+			'number': 'Non 0 positive number. Eg: 1, 12, 55.5, 7+8 , 6*7.7'
+		}
+	)
+	var height = new Args('height', ['h'], 'number', '!0+number',
+		"The height of the character in terms of percentage of the VN's screen's width*", {
+			'number': 'Non 0 positive number. Eg: 1, 12, 55.5, 7+8 , 6*7.7'
+		}
+	)
+	var x = new Args('xOffSet', ['x', 'xOffset', 'left'], 'number', 'number',
+		"The horizontal distance the character will be at from the alignment of the character in terms of percentage of the VN's screen width.", {
+			"number": "Any float or integer"
+		}
+	)
+	var y = new Args('yOffSet', ['y', 'yOffset', 'top'], 'number', 'number',
+		"The vertical distance the character will be at from the alignment of the character in terms of percentage of the VN's screen height.", {
+			"number": "Any float or integer"
+		}
+	)
+	var aX = new Args('horizontalAlignment', ['aX', 'xAlign', 'hAlign'], 'number', 'number',
+		"This is BOTH the anchor x of the character AND the character's hozizontal aligment to the screen.", {
+			"number": "Any float or integer"
+		}
+	)
+	var aY = new Args('verticalAlignment', ['aY', 'yAlign', 'vAlign'], 'number', 'number',
+		"This is BOTH the anchor y of the character AND the character's vertical aligment to the screen.", {
+			"number": "Any float or integer"
+		}
+	)
+	var bgi = new Args('image', ['sprite', 'defImage', 'defSprite', 'bg', 'background', 'bkgd'], 'string', 'URL',
+		"Link to the default background image the stage is rendered with. This is an image link to the folder kvn/images/bkgd/ folder by default", {
+			'string': 'The relative link to the image. Eg: town.png, chinatown/rain.jpg'
+		}
+	)
+	var opText = new Args('text', ['msg', 'option'], 'string', 'string',
+		"The text that is displayed as the option.", {
+			'string': 'Any string'
+		}
+	)
+	var promise = new Args('promise', [], 'function', 'promise',
+		'A promise to be fulfilled. This is a function, when this animation or instant ends (whether skipped or not), the promise will be executed.', {
+			'function': 'a full defined javacsript function. This can be other animations, setters or anything at all.',
+			'null/undefined': 'Ends the animation thread. When all animation thread ends in aframe, the frame will be considered to have ended.'
+		});
+	var soundgroup = new Args('soundgroup', [], 'object', 'sound-group',
+		'The master sound group which this sound belongs to, when the volume of this sound group changes, all the sound belonging to this sound group will change relatively. ', {
+			'VN': 'Visual Novel sounds, including visual novel background music',
+			'BGM': 'Clicker Background music',
+			'SFX': 'Sound effects for clicker'
+		}
+	)
+	var source = new Args('source', [], 'string', 'URL',
+		'Source of the sound. Recommended to use mp3 to fit all browsers. Note that is has to be under /sounds folder ', {
+			'string': 'Relative link to sound/music files. Eg:background.mp3, title.wav, kimi.flac'
+		}
+	)
+	var loop = new Args('loop', [], 'boolean', 'boolean',
+		'Whether the sound will loop after it has ended', {
+			'true': 'Sound automatically loops after ended',
+			'false': 'Sound stops playing once it reaches the end of its playback',
+			'null/undefined': 'Sound will stop playing once it reaches the end of its playback'
+		}
+	)
+	addMethodToList(new Construct('character', ['char'], 'Character', [name, image, width, height, x, y, aX, aY], lex, c,
+		'Creates a Character Object'
+	), conList);
+	addMethodToList(new Construct('stage', [], 'Stage', [bgi], lex, c,
+		'Creates a Stage Object'
+	), conList);
+	addMethodToList(new Construct('option', [], 'Options', [opText,id, promise], lex, c,
+		'Creates a Option Object'
+	), conList);
+	addMethodToList(new Construct('sound', ['music'], 'GameSound', [soundgroup, source, loop], lex, c,
+		'Creates a Sound Object'
+	), conList);
+	return conList;
 }
 
 function initCharacter(charList) {
@@ -675,7 +779,7 @@ function initCharacter(charList) {
 	addMethodToList(new Method('speak', ['say'], null, [text, promise, texttime, skip], lex, anim,
 		'Make the character open the text box and say stuff. It will use the character\'s current name as the name. Do note that this will clear whatever text there are in the current textbox (if it is completed displaying) and be ignored if the current textbox is still animating its text. '
 	), charList);
-	addMethodToList(new Method('contSpeaking', ['contSpeak', 'contSay', 'cont'], null, [text, promise, texttime, skip,newLine,appendSpace], lex, anim,
+	addMethodToList(new Method('contSpeaking', ['contSpeak', 'contSay', 'cont'], null, [text, promise, texttime, skip, newLine, appendSpace], lex, anim,
 		'This method is exactly same as the speak method ,except it does not clear the textbox before display its own text. '
 	), charList);
 	addMethodToList(new Method('setDefaultFlip', ['setDefFlip'], null, [promise, time, swing, skip], lex, anim,
@@ -1425,10 +1529,11 @@ function initBackground(bgList) {
 	return bgList;
 }
 
-function initAllMethods(charList, bgList) {
+function initAllMethods(charList, bgList, conList) {
 	charList = initCharacter(charList);
 	bgList = initBackground(bgList);
-	return [charList, bgList];
+	conList = initConstructor(conList);
+	return [charList, bgList, conList];
 }
 
 function registerMacro(lines) {

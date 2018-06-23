@@ -17,7 +17,7 @@ module.exports = class TreeNode {
 			child.increaseTreeValue(v);
 		}
 	}
-	generateJavascript(bgList, charList, varList) {
+	generateJavascript(bgList, charList, conList, varList) {
 		var arr = [];
 		if (this.type === "unknown" && this.parent !== null) {
 			throw new Error('Uknown operation at Line ' + this.sourceLine);
@@ -29,13 +29,18 @@ module.exports = class TreeNode {
 		if (this.canProm) {
 			if (this.children.length > 0) {
 				for (var i = 0; i < this.children.length; i++) {
-					arr.push(this.children[i].generateJavascript(bgList, charList, varList));
+					arr.push(this.children[i].generateJavascript(bgList, charList, conList, varList));
 				}
 			}
 		}
 		switch (this.type) {
 			case "command":
 				switch (this.getKey()) {
+					case "create":
+						var caller = this.getArg(1);
+						var constructionMethod = conList[caller];
+						return constructionMethod.parseCode(caller, this.code, arr, 0, this.sourceLine) + '\n';
+
 					case "frame":
 						var code = childval === 0 ? "[" : "\n,";
 						code += "new Frame(function(){ \n";

@@ -1,12 +1,13 @@
 'use strict'
 module.exports = class Parser {
-	constructor(tree, macroList, objList, charMethodList, bgMethodList, varList) {
+	constructor(tree, macroList, objList, charMethodList, bgMethodList, conList, varList) {
 		this.tree = tree;
 		this.macroList = macroList;
 		this.objList = objList;
 		this.bgMethodList = bgMethodList;
 		this.charMethodList = charMethodList;
-		this.commandList = ['let', 'mod', 'js', 'scene', 'frame'];
+		this.conList = conList;
+		this.commandList = ['let', 'mod', 'js', 'scene', 'frame','create'];
 		this.varList = varList;
 	}
 	isCharMethod(method) {
@@ -15,12 +16,15 @@ module.exports = class Parser {
 	isBackgroundMethod(method) {
 		return typeof this.bgMethodList[method.trim()] !== "undefined";
 	}
+
 	getCharMethod(method) {
 		return this.charMethodList[method.trim()];
 	}
 	getBackgroundMethod(method) {
 		return this.bgMethodList[method.trim()];
 	}
+
+
 	isMacroKey(node) {
 		for (var x in this.macroList) {
 			if (x === node.getKey()) {
@@ -30,7 +34,9 @@ module.exports = class Parser {
 		return false;
 	}
 
+	isConstructor(node){
 
+	}
 
 	isCharacter(node) {
 		var keyComma = node.getKey().split(',').filter(d=>d!==null && typeof d1=="undefined" && d.trim() !== "").map(d=>d.trim());
@@ -62,6 +68,7 @@ module.exports = class Parser {
 		}
 		return false;
 	}
+
 	isBackground(node) {
 		var keyComma = node.getKey().split(',').filter(d=>d!==null && typeof d1=="undefined" && d.trim() !== "").map(d=>d.trim());
 	var keySlash = node.getKey().split('/').filter(d=>d!==null && typeof d1=="undefined" && d.trim() !== "").map(d=>d.trim());
@@ -106,7 +113,7 @@ module.exports = class Parser {
 		this.recursiveMacro(this.tree);
 		this.recursiveCheck(this.tree, this.resolveUnknownCommand);
 		this.recursiveCheck(this.tree, this.promiseCheck);
-		return this.tree.generateJavascript(this.bgMethodList, this.charMethodList, this.varList);
+		return this.tree.generateJavascript(this.bgMethodList, this.charMethodList, this.conList, this.varList);
 	}
 	promiseCheck(node, char) {
 		if (node.type === "command") {
@@ -116,11 +123,18 @@ module.exports = class Parser {
 				case "js":
 					node.canProm = true;
 					return true;
+				case "create":
+					if(node.getArg(1).trim() === "option" ){
+						node.canProm = true;
+					}else{
+						node.canProm = false;
+						if (node.children.length > 0) {
+							return "Method cannot have callbacks or make promises. ";
+						}
+					}
+					return true;
 				default:
 					node.canProm = false;
-					if (node.children.length > 0) {
-						return "Method cannot have callbacks or make promises. ";
-					}
 					return true;
 			}
 		} else if (node.type === "character") {
