@@ -1789,16 +1789,16 @@ function parseDefintions(lines) {
 			i--;
 		}
 		if (key.trim() === 'let') {
-			if (args.length !== 6) {
+			if (args.length < 6) {
 				throw new Error('Syntax Error: Initialization of variable is incorrect! Argument mismatch: ' + args.length + " at Line " + index);
 			}
 			if (args[2] !== "be") {
 				throw new Error("Syntax Error: Uknown keyword: " + args[2] + " at Line " + index);
 			}
-			if (args[4] !== "as") {
+			if (args[args.length-2] !== "as") {
 				throw new Error("Syntax Error: Uknown keyword: " + args[4] + " at Line " + index);
 			}
-			var type = args[5].trim();
+			var type = args[args.length-1].trim();
 			if (type !== "string" && type !== "number" && type !== "boolean" && type !== "object") {
 				throw new Error("Syntax Error: Unknown type: " + args[5] + ";" + " at Line " + index);
 			}
@@ -1808,7 +1808,12 @@ function parseDefintions(lines) {
 				if (variableList[vari] !== null && typeof variableList[vari] !== "undefined") {
 					throw new Error('Variable ' + vari + " has already been initialized!" + " at Line " + index);
 				}
-				variableList[vari] = new Variable(vari, args[3].trim(), args[5]);
+				var type = args.pop();
+				args.shift()
+				args.shift()
+				args.shift()
+				args.pop()
+				variableList[vari] = new Variable(vari, args.join(' '), args[5]);
 			}
 		}
 	}
