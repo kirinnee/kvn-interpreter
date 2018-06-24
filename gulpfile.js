@@ -94,7 +94,7 @@ gulp.task('series', function(done) {
 		});
 		promises.push(p);
 	}
-	return new Promise(function(resolve){
+	return new Promise(function(resolve) {
 		Promise.all(promises)
 			.then(d => {
 				fs.readFile('../kvn/scripts/init.kvn', 'utf8', function(err, data) {
@@ -159,7 +159,7 @@ gulp.task('series', function(done) {
 					}
 				});
 			});
-		});
+	});
 });
 
 function parseScenes(lines) {
@@ -1378,6 +1378,12 @@ function initBackground(bgList) {
 		'Characters game objects', {
 			'character': 'Fully constructed Character objects'
 		});
+	var shouldFO = new Args('fadeOut', ['fade'], 'boolean', 'boolean',
+		'When using in display, its calls undisplay which fades the previous stage to nothing before it displays the current stage by default. Set this to false if you do not want that', {
+			'true': 'The previous stage or current stage will fade out',
+			'false': 'The previous stage or current stage will not fade out',
+			'def/null/undefined': 'the previous stage or current stage WILL fade out'
+		});
 	//setters
 	addMethodToList(new Method('resetValues', [], null, [], lex, set,
 		'Animate the background to the state prior to .complete() call.'
@@ -1606,10 +1612,10 @@ function initBackground(bgList) {
 		"Notify the a thread that may be waiting for this thread."
 	), bgList);
 	//globals
-	addMethodToList(new Method('display', ['show'], null, [bgA, bdA, time, promise, swing, skip], lex, gg,
+	addMethodToList(new Method('display', ['show'], null, [bgA, bdA, time, promise, swing, skip,shouldFO], lex, gg,
 		"Sets the current stage to active. If there is a previous stage, the previous stage's background, overlay and cover will fade out (within the first half of the time) and fade in the background to bkgdAlpha value and animate the backdrop's opacity to bkdpAlpha in the second half to the time. If there is not previous stage, the current background and backdrop will fade in to bkgdAlpha opacity and bkdpAlpha opacity respectively. "
 	), bgList);
-	addMethodToList(new Method('unDisplay', ['hide'], null, [time, promise, swing, skip, offBackdrop], lex, gg,
+	addMethodToList(new Method('unDisplay', ['hide'], null, [time, promise, swing, skip, offBackdrop,shouldFO], lex, gg,
 		"Remove the current stage as the active stage. Fade the background out. Put last parameter to true if you want the backdrop to fadeout too. This will automatically fade overlay and cover out "
 	), bgList);
 	addMethodToList(new Method('bringCharacter', ['bring'], null, [char, promise], lexer, gg,
