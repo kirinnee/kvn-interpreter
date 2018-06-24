@@ -11,6 +11,11 @@ function numberOfSpaces(text) {
     return count;
 }
 
+String.prototype.replaceAll = function(search, replacement) {
+    var target = this;
+    return target.split(search).join(replacement);
+};
+
 module.exports = class Macro {
     constructor(macroKey, args, lines) {
         this.key = macroKey;
@@ -32,9 +37,8 @@ module.exports = class Macro {
             for (var i = 0; i < this.lines.length; i++) {
                 var line = this.lines[i].code;
                 var ind = this.lines[i].index;
-
                 for(var id = 0; id < this.args.length; id++){
-                  line = line.replace(this.args[id].trim(),args[id].trim());
+                  line = line.replaceAll(this.args[id].trim(),args[id].trim());
                 }
                 var s = value + numberOfSpaces(line);
                 var node = new TreeNode(s, line.trim(), index);

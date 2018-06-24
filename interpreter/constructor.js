@@ -35,7 +35,6 @@ module.exports = class Constructor {
 		var arrays = this.lexer.parse(code, this.order);
 		var id = code.split(' ').filter(d => d!==null&&typeof d==="string"&& d.trim()).map(d=>d.trim())[2];
 		arrays.push({key:'id',value:id});
-		console.log(arrays);
 		var code = '  '.repeat(tabulation) + "window." + id +" = new " + this.realName +  "(";
 
 		var temp = '';
