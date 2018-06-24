@@ -89,7 +89,7 @@ module.exports = class Method {
 								if (arg.type === "string") {
 									v = v.replace(/"/g, '\\"');
 									v = v.replace(/'/g, "\\'");
-									v = v.replace(/([^\\]|^)#([^\s]+)(\s|$)/, '$1\' + $2 + \'$3');
+									v = v.replace(/([^\\]|^)#([^\s]+)(\s|$)/, '$1\' + $2 + \'');
 									v = v.replace(/\\#/, '#');
 									val = "\'" + v + "\'";
 								} else {

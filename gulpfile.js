@@ -1813,7 +1813,7 @@ function parseDefintions(lines) {
 				args.shift()
 				args.shift()
 				args.pop()
-				variableList[vari] = new Variable(vari, args.join(' '), args[5]);
+				variableList[vari] = new Variable(vari, args.join(' '), type);
 			}
 		}
 	}
