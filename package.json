@@ -22,6 +22,6 @@
   "homepage": "https://github.com/kirinnee/kvn-interpreter#readme",
   "dependencies": {
     "del": "^3.0.0",
-    "gulp": "github:gulpjs/gulp#4.0"
+    "gulp": "^4.0.2"
   }
 }
